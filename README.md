@@ -10,12 +10,11 @@ This README walks the user through the steps of configuring and accessing the
 Linux web server using Amazon Lightsail. 
 
 ## Server Details
-**IP Address:**
+**IP Address:** 13.238.185.29
 
 **SSH Port:**
 
 **URL to the hosted web application:**
-
 
 ## Overview of the Steps
 1. Set-up the server
@@ -43,217 +42,53 @@ your server’s IP address in a browser.
 
 ## Detailed Configuration Steps
 
+### 1. Set-up the server
+
+**- Start a new Ubuntu server instance on [Amazon Lightsail](https://lightsail.aws.amazon.com/).**
+
+In [Amazon Lightsail](https://lightsail.aws.amazon.com/), log-in using your 
+Amazon Web Service (AWS) account or create a new account. Follow the steps in creating a 
+Lightsail instance. For the instance image, select **Linux/Unix platform**. For Blueprint, 
+select **OS only** and **Ubuntu**. Select the **First Month free** instance plan. 
+Indicate a unique instance name. 
+The public IP address will be displayed when the instance is created.
+
+**- Set-up SSH access to the server.**
+
+### 2. Secure the server
+**- Update installed packages.**
+
+**- Change the SSH port from 22 to 2200.**
+
+**- Configure the Lightsail firewall to allow it.**
+
+**- Configure the Uncomplicated Firewall (UFW) to only allow incoming 
+connections for SSH (port 2200), HTTP (port 80), and NTP (port 123).**
+
+### 3. Give grader access
+**- Create a new user account named grader.**
+
+**- Give grader the permission to sudo.**
+
+**- Create an SSH key pair for grader using the ssh-keygen tool.**
+
+### 4. Prepare to deploy the project
+**- Configure the local timezone to UTC.**
+
+**- Install and configure Apache to serve a Python mod_wsgi application.**
+
+**- Install and configure PostgreSQL.**
+
+**- Install git**
+
+### 5. Deploy the Item Catalog project
+**- Clone and set-up the Item Catalog project**
+
+**- Set it up in your server so that it functions correctly when visiting 
+your server’s IP address in a browser.**
+
 
 ## Summary of Software Installed
-
-
-### Preparing the code
-
-1. Clone your project into the vagrant environment: 
-
-Cloned project: https://github.com/czar3985/restaurant-flask
-
-2. Delete the created database
-3. Make the necessary mods to use python 3 instead of 2
-
-ex. show code changes in restaurantmenu.py
-
-3. Test that it runs and install the required packages (ex. SQLAlchemy, pip upgrade, python)
-
-```
-sudo -H apt-get install python3 python3-pip
-sudo -H pip3 install --upgrade pip
-sudo -H pip3 install flask 
-sudo -H pip3 install sqlalchemy
-sudo -H pip3 install oauth2client 
-```
-issues:
-```
-Found existing installation: six 1.5.2
-Cannot uninstall 'six'. It is a distutils installed project and thus we cannot accurately determine which files belong to it which would lead to only a partial uninstall.
-```
-to fix:
-```
-sudo -H pip3 install --ignore-installed six
-```
-and then:
-```
-sudo -H pip3 install oauth2client 
-```
-4. Switch from sqlite to PostgreSQL
-
-Just create a user and database. Change the SQLAlchemy engine URL and SQLAlchemy does the rest.
-
-Install postgre if not yet installed:
-```
-vagrant@vagrant:~$  sudo apt-get update
-sudo apt-get install postgresql postgresql-contrib
-```
-Change to the postgre user:
-```
-sudo su - postgres
-```
-Enter postgresql app:
-```
-postgres@vagrant:/$ psql
-```
-
-```
-postgres=# CREATE DATABASE restaurantMenu;
-postgres=# CREATE USER admin;
-```
-Giving the user a password
-
-```
-psql=# ALTER ROLE admin WITH ENCRYPTED PASSWORD 'yourpass';
-```
-Granting privileges on database
-```
-psql=# GRANT ALL PRIVILEGES ON DATABASE restaurantMenu TO admin;
-postgres=# \q
-postgres@vagrant:/$ exit
-```
-In code, find all create_engine instances. change to postgresql database access:
-change from:
-```
-engine = create_engine('sqlite:///restaurantmenu.db')
-```
-to 
-```
-engine = create_engine('postgresql://admin:<password>@localhost/restaurantmenu')
-```
-replace password portion
-
-## Server Access
-
-Setup grader user:
-
-logged in as vagrant:
-```
-vagrant@vagrant-ubuntu-trusty-64:~$ sudo adduser grader
-```
-
-```
-vagrant@vagrant-ubuntu-trusty-64:~$ sudo adduser grader
-```
-
-
-to confirm:
-```
-vagrant@vagrant-ubuntu-trusty-64:~$ finger grader
-```
-
-check that you can connect to the server as the new user from 
-a local machine:
-```
-$ ssh grader@127.0.0.1 -p 2222
-```
-You may be asked to verify and for the grader's password. Enter
-the password set earlier to log in
-
-Note that if password authentication has been turned off, logging in 
-using password will not be successful. 
-
-If so, modify the password authentication part in the configuration file for
-SSH connections. In vagrant machine:
-```
-vagrant@vagrant-ubuntu-trusty-64:~$ sudo nano /etc/ssh/sshd_config
-```
-Set PasswordAuthentication to yes
-```
-# Change to no to disable tunnelled clear text passwords
-PasswordAuthentication yes
-```
-Ctrl O, Enter, Ctrl X to save and exit
-then restart the service:
-
-```
-vagrant@vagrant-ubuntu-trusty-64:~$ sudo service ssh restart
-```
-
-Back to the vagrant machine, check the users that are allowed to use sudo:
-```
-vagrant@vagrant-ubuntu-trusty-64:~$ sudo ls /etc/sudoers.d
-```
-vagrant should be one of the users.
-
-give the grader access to sudo:
-```
-vagrant@vagrant-ubuntu-trusty-64:~$ sudo cp /etc/sudoers.d/vagrant /etc/sudoers.d/grader
-```
-
-Confirm addition of grader to the directory:
-```
-vagrant@vagrant-ubuntu-trusty-64:~$ sudo ls /etc/sudoers.d         90-cloud-init-users  grader  README  student  vagrant
-```
-edit the grader file that was added:
-```
-vagrant@vagrant-ubuntu-trusty-64:~$ sudo nano /etc/sudoers.d/grader
-```
-file contents:
-```
-# CLOUD_IMG: This file was created/modified by the Cloud Image bui$
-vagrant ALL=(ALL) NOPASSWD:ALL
-```
-Ctrl-O, Enter, Ctrl-X to save and exit file
-
-confirm that the file was modified:
-```
-vagrant@vagrant-ubuntu-trusty-64:~$ sudo cat /etc/sudoers.d/grader
-# CLOUD_IMG: This file was created/modified by the Cloud Image build process
-grader ALL=(ALL) NOPASSWD:ALL
-```
-and
-```
-vagrant@vagrant-ubuntu-trusty-64:~$ sudo cat /etc/passwd
-```
-should show at the end:
-```
-grader:x:1003:1003:Udacity Grader,,,:/home/grader:/bin/bash
-```
-
-Implement login via SSH key instead of password:
-
-In local machine, generate key-pair:
-```
-$ ssh-keygen
-Generating public/private rsa key pair.
-Enter file in which to save the key (/c/Users/pixie/.ssh/id_rsa): /c/Users/pixie/.ssh/serverConfig
-Enter passphrase (empty for no passphrase):
-Enter same passphrase again:
-```
-
-Copy the public key from:
-```
-$ cat .ssh/serverConfig.pub
-```
-
-In the server, while logged in as grader, in home directory, create a .ssh folder and 
-and authorized_keys file inside the .ssh folder:
-```
-$ ssh grader@127.0.0.1 -p 2222
-grader@vagrant-ubuntu-trusty-64:~$ cd ~
-grader@vagrant-ubuntu-trusty-64:~$ mkdir .ssh
-grader@vagrant-ubuntu-trusty-64:~$ touch .ssh/authorized_keys
-```
-
-Edit the authorized_keys file and place public key there:
-```
-grader@vagrant-ubuntu-trusty-64:~$ nano .ssh/authorized_keys
-```
-
-Set the permissions:
-```
-grader@vagrant-ubuntu-trusty-64:~$ chmod 700 .ssh
-grader@vagrant-ubuntu-trusty-64:~$ chmod 644 .ssh/authorized_keys
-```
-
-From a local terminal try logging in using the key-pair. It should be able to
-log-in without using the grader account password
-```
-$ ssh grader@127.0.0.1 –p 2222 –i ~/.ssh/serverConfig
-```
-Enter passphrase set when generating the key pair
 
 
 ## Resources
