@@ -66,34 +66,43 @@ sudo -H pip3 install oauth2client
 Just create a user and database. Change the SQLAlchemy engine URL and SQLAlchemy does the rest.
 
 Install postgre if not yet installed:
+```
 vagrant@vagrant:~$  sudo apt-get update
 sudo apt-get install postgresql postgresql-contrib
-
+```
 Change to the postgre user:
+```
 sudo su - postgres
-
+```
 Enter postgresql app:
+```
 postgres@vagrant:/$ psql
+```
 
-
+```
 postgres=# CREATE DATABASE restaurantMenu;
 postgres=# CREATE USER admin;
-
+```
 Giving the user a password
 
+```
 psql=# ALTER ROLE admin WITH ENCRYPTED PASSWORD 'yourpass';
-
+```
 Granting privileges on database
-
+```
 psql=# GRANT ALL PRIVILEGES ON DATABASE restaurantMenu TO admin;
 postgres=# \q
 postgres@vagrant:/$ exit
-
+```
 In code, find all create_engine instances. change to postgresql database access:
 change from:
+```
 engine = create_engine('sqlite:///restaurantmenu.db')
+```
 to 
+```
 engine = create_engine('postgresql://admin:<password>@localhost/restaurantmenu')
+```
 replace password portion
 
 References:
