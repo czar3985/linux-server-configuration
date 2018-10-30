@@ -19,20 +19,85 @@ It is recommended but not required to set-up the server using a virtual environm
 version 5.2
 2. Download and install [Vagrant](https://www.vagrantup.com/)
 
-_Ubuntu installation_
+vagrant init, up, ssh
 
-### Install the required packages
+_Ubuntu installation_
+the Ubuntu distribution is trusty64
+
+### Required packages for the web and database server
 
 _Apache and Postgresql installation_
 
 ### Preparing the code
 
-_More to follow..._
+1. Clone your project into the vagrant environment: 
+
+Cloned project: https://github.com/czar3985/restaurant-flask
+
+2. Delete the created database
+3. Make the necessary mods to use python 3 instead of 2
+
+ex. show code changes in restaurantmenu.py
+
+3. Test that it runs and install the required packages (ex. SQLAlchemy, pip upgrade, python)
+
+sudo -H apt-get install python3 python3-pip
+sudo -H pip3 install --upgrade pip
+sudo -H pip3 install flask 
+sudo -H pip3 install sqlalchemy
+sudo -H pip3 install oauth2client 
+
+issues:
+Found existing installation: six 1.5.2
+Cannot uninstall 'six'. It is a distutils installed project and thus we cannot accurately determine which files belong to it which would lead to only a partial uninstall.
+
+sudo -H pip3 install --ignore-installed six
+
+4. Switch from sqlite to PostgreSQL
+
+Just create a user and database. Change the SQLAlchemy engine URL and SQLAlchemy does the rest.
+
 
 
 ## Server Access
 
-_To follow..._
+Setup grader user:
+
+check the users that are allowed to use sudo:
+vagrant@vagrant-ubuntu-trusty-64:~$ sudo ls /etc/sudoers.d
+vagrant should be one of the users.
+ex output:
+vagrant@vagrant-ubuntu-trusty-64:~$ sudo ls /etc/sudoers.d
+90-cloud-init-users  README  student  vagrant
+
+
+give the grader access to sudo:
+
+vagrant@vagrant-ubuntu-trusty-64:~$ sudo cp /etc/sudoers.d/vagrant /etc/sudoers.d/grader
+
+
+Confirm addition of grader to the directory:
+vagrant@vagrant-ubuntu-trusty-64:~$ sudo ls /etc/sudoers.d         90-cloud-init-users  grader  README  student  vagrant
+
+edit the grader file that was added:
+vagrant@vagrant-ubuntu-trusty-64:~$ sudo nano /etc/sudoers.d/grader
+
+file contents:
+#CLOUD_IMG: This file was created/modified by the Cloud Image bui$
+vagrant ALL=(ALL) NOPASSWD:ALL
+
+Ctrl-O, Enter, Ctrl-X to save and exit file
+
+confirm that the file was modified:
+vagrant@vagrant-ubuntu-trusty-64:~$ sudo cat /etc/sudoers.d/grader
+#CLOUD_IMG: This file was created/modified by the Cloud Image build process
+grader ALL=(ALL) NOPASSWD:ALL
+
+and
+
+vagrant@vagrant-ubuntu-trusty-64:~$ sudo cat /etc/passwd
+should show at the end:
+grader:x:1003:1003:Udacity Grader,,,:/home/grader:/bin/bash
 
 
 ## The hosted web application
@@ -43,3 +108,4 @@ _To follow..._
 ## References
 
 1. [Udacity](https://www.udacity.com/)'s course "Configuring Linux Web Servers"
+2. http://terokarvinen.com/2017/write-python-3-web-apps-with-apache2-mod_wsgi-install-ubuntu-16-04-xenial-every-tiny-part-tested-separately
