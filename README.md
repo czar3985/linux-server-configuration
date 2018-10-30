@@ -65,7 +65,39 @@ sudo -H pip3 install oauth2client
 
 Just create a user and database. Change the SQLAlchemy engine URL and SQLAlchemy does the rest.
 
+Install postgre if not yet installed:
+vagrant@vagrant:~$  sudo apt-get update
+sudo apt-get install postgresql postgresql-contrib
 
+Change to the postgre user:
+sudo su - postgres
+
+Enter postgresql app:
+postgres@vagrant:/$ psql
+
+
+postgres=# CREATE DATABASE restaurantMenu;
+postgres=# CREATE USER admin;
+
+Giving the user a password
+
+psql=# ALTER ROLE admin WITH ENCRYPTED PASSWORD 'yourpass';
+
+Granting privileges on database
+
+psql=# GRANT ALL PRIVILEGES ON DATABASE restaurantMenu TO admin;
+postgres=# \q
+postgres@vagrant:/$ exit
+
+In code, find all create_engine instances. change to postgresql database access:
+change from:
+engine = create_engine('sqlite:///restaurantmenu.db')
+to 
+engine = create_engine('postgresql://admin:<password>@localhost/restaurantmenu')
+replace password portion
+
+References:
+https://medium.com/coding-blocks/creating-user-database-and-adding-access-on-postgresql-8bfcd2f4a91e
 
 ## Server Access
 
@@ -134,6 +166,7 @@ PasswordAuthentication yes
 ```
 Ctrl O, Enter, Ctrl X to save and exit
 then restart the service:
+
 ```
 vagrant@vagrant-ubuntu-trusty-64:~$ sudo service ssh restart
 ssh stop/waiting
@@ -200,6 +233,39 @@ XXXXXX
 The key's randomart image is:
 XXXXXX
 ```
+
+Copy the public key from:
+```
+$ cat .ssh/serverConfig.pub
+```
+
+In the server, while logged in as grader, in home directory, create a .ssh folder and 
+and authorized_keys file inside the .ssh folder:
+```
+$ ssh grader@127.0.0.1 -p 2222
+grader@vagrant-ubuntu-trusty-64:~$ cd ~
+grader@vagrant-ubuntu-trusty-64:~$ mkdir .ssh
+grader@vagrant-ubuntu-trusty-64:~$ touch .ssh/authorized_keys
+```
+
+Edit the authorized_keys file and place public key there:
+```
+grader@vagrant-ubuntu-trusty-64:~$ nano .ssh/authorized_keys
+```
+
+Set the permissions:
+```
+grader@vagrant-ubuntu-trusty-64:~$ chmod 700 .ssh
+grader@vagrant-ubuntu-trusty-64:~$ chmod 644 .ssh/authorized_keys
+```
+
+From a local terminal try logging in using the key-pair. It should be able to
+log-in without using the grader account password
+```
+$ ssh grader@127.0.0.1 –p 2222 –i ~/.ssh/serverConfig
+```
+Enter passphrase set when generating the key pair
+
 
 ## The hosted web application
 
