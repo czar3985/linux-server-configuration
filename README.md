@@ -7,26 +7,45 @@ attack vectors are implemented and a previously coded web application
 is deployed in it to make it publicly accessible.
 
 This README walks the user through the steps of configuring and accessing the 
-Linux web server.
+Linux web server using Amazon Lightsail. 
+
+## Server Details
+**IP Address:**
+
+**SSH Port:**
+
+**URL to the hosted web application:**
 
 
-## Configuration Steps
+## Overview of the Steps
+1. Set-up the server
+- Start a new Ubuntu server instance on Amazon Lightsail.
+- Set-up SSH access to the server.
+2. Secure the server
+- Update installed packages.
+- Change the SSH port from 22 to 2200. 
+- Configure the Lightsail firewall to allow it.
+- Configure the Uncomplicated Firewall (UFW) to only allow incoming 
+connections for SSH (port 2200), HTTP (port 80), and NTP (port 123).
+3. Give grader access
+- Create a new user account named grader.
+- Give grader the permission to sudo.
+- Create an SSH key pair for grader using the ssh-keygen tool.
+4. Prepare to deploy the project
+- Configure the local timezone to UTC.
+- Install and configure Apache to serve a Python mod_wsgi application.
+- Install and configure PostgreSQL.
+- Install git
+5. Deploy the Item Catalog project
+- Clone and set-up the Item Catalog project
+- Set it up in your server so that it functions correctly when visiting 
+your server’s IP address in a browser.
 
-### Install Linux
-#### Optional Prerequisites
-It is recommended but not required to set-up the server using a virtual environment.
-1. Download and install [VirtualBox](https://www.virtualbox.org/wiki/Download_Old_Builds_5_2) 
-version 5.2
-2. Download and install [Vagrant](https://www.vagrantup.com/)
+## Detailed Configuration Steps
 
-vagrant init, up, ssh
 
-_Ubuntu installation_
-the Ubuntu distribution is trusty64
+## Summary of Software Installed
 
-### Required packages for the web and database server
-
-_Apache and Postgresql installation_
 
 ### Preparing the code
 
@@ -105,9 +124,6 @@ engine = create_engine('postgresql://admin:<password>@localhost/restaurantmenu')
 ```
 replace password portion
 
-References:
-https://medium.com/coding-blocks/creating-user-database-and-adding-access-on-postgresql-8bfcd2f4a91e
-
 ## Server Access
 
 Setup grader user:
@@ -115,41 +131,16 @@ Setup grader user:
 logged in as vagrant:
 ```
 vagrant@vagrant-ubuntu-trusty-64:~$ sudo adduser grader
-enter unix password: udacity
-Full Name: Udacity Grader
-Other info: blank
 ```
 
 ```
 vagrant@vagrant-ubuntu-trusty-64:~$ sudo adduser grader
-Adding user `grader' ...
-Adding new group `grader' (1003) ...
-Adding new user `grader' (1003) with group `grader' ...
-Creating home directory `/home/grader' ...
-Copying files from `/etc/skel' ...
-Enter new UNIX password:
-Retype new UNIX password:
-passwd: password updated successfully
-Changing the user information for grader
-Enter the new value, or press ENTER for the default
-        Full Name []: Udacity Grader
-        Room Number []:
-        Work Phone []:
-        Home Phone []:
-        Other []:
-Is the information correct? [Y/n] Y
 ```
 
 
 to confirm:
-finger grader
 ```
 vagrant@vagrant-ubuntu-trusty-64:~$ finger grader
-Login: grader                           Name: Udacity Grader
-Directory: /home/grader                 Shell: /bin/bash
-Never logged in.
-No mail.
-No Plan.
 ```
 
 check that you can connect to the server as the new user from 
@@ -178,18 +169,13 @@ then restart the service:
 
 ```
 vagrant@vagrant-ubuntu-trusty-64:~$ sudo service ssh restart
-ssh stop/waiting
-ssh start/running, process 2011
 ```
 
 Back to the vagrant machine, check the users that are allowed to use sudo:
 ```
 vagrant@vagrant-ubuntu-trusty-64:~$ sudo ls /etc/sudoers.d
-vagrant should be one of the users.
-ex output:
-vagrant@vagrant-ubuntu-trusty-64:~$ sudo ls /etc/sudoers.d
-90-cloud-init-users  README  student  vagrant
 ```
+vagrant should be one of the users.
 
 give the grader access to sudo:
 ```
@@ -235,12 +221,6 @@ Generating public/private rsa key pair.
 Enter file in which to save the key (/c/Users/pixie/.ssh/id_rsa): /c/Users/pixie/.ssh/serverConfig
 Enter passphrase (empty for no passphrase):
 Enter same passphrase again:
-Your identification has been saved in /c/Users/pixie/.ssh/serverConfig.
-Your public key has been saved in /c/Users/pixie/.ssh/serverConfig.pub.
-The key fingerprint is:
-XXXXXX
-The key's randomart image is:
-XXXXXX
 ```
 
 Copy the public key from:
@@ -276,12 +256,8 @@ $ ssh grader@127.0.0.1 –p 2222 –i ~/.ssh/serverConfig
 Enter passphrase set when generating the key pair
 
 
-## The hosted web application
-
-_To follow..._
-
-
-## References
+## Resources
 
 1. [Udacity](https://www.udacity.com/)'s course "Configuring Linux Web Servers"
 2. http://terokarvinen.com/2017/write-python-3-web-apps-with-apache2-mod_wsgi-install-ubuntu-16-04-xenial-every-tiny-part-tested-separately
+3. https://medium.com/coding-blocks/creating-user-database-and-adding-access-on-postgresql-8bfcd2f4a91e
