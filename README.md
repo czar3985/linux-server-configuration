@@ -111,7 +111,36 @@ No mail.
 No Plan.
 ```
 
-check the users that are allowed to use sudo:
+check that you can connect to the server as the new user from 
+a local machine:
+```
+$ ssh grader@127.0.0.1 -p 2222
+```
+You may be asked to verify and for the grader's password. Enter
+the password set earlier to log in
+
+Note that if password authentication has been turned off, logging in 
+using password will not be successful. 
+
+If so, modify the password authentication part in the configuration file for
+SSH connections. In vagrant machine:
+```
+vagrant@vagrant-ubuntu-trusty-64:~$ sudo nano /etc/ssh/sshd_config
+```
+Set PasswordAuthentication to yes
+```
+# Change to no to disable tunnelled clear text passwords
+PasswordAuthentication yes
+```
+Ctrl O, Enter, Ctrl X to save and exit
+then restart the service:
+```
+vagrant@vagrant-ubuntu-trusty-64:~$ sudo service ssh restart
+ssh stop/waiting
+ssh start/running, process 2011
+```
+
+Back to the vagrant machine, check the users that are allowed to use sudo:
 ```
 vagrant@vagrant-ubuntu-trusty-64:~$ sudo ls /etc/sudoers.d
 vagrant should be one of the users.
@@ -153,6 +182,23 @@ vagrant@vagrant-ubuntu-trusty-64:~$ sudo cat /etc/passwd
 should show at the end:
 ```
 grader:x:1003:1003:Udacity Grader,,,:/home/grader:/bin/bash
+```
+
+Implement login via SSH key instead of password:
+
+In local machine, generate key-pair:
+```
+$ ssh-keygen
+Generating public/private rsa key pair.
+Enter file in which to save the key (/c/Users/pixie/.ssh/id_rsa): /c/Users/pixie/.ssh/serverConfig
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /c/Users/pixie/.ssh/serverConfig.
+Your public key has been saved in /c/Users/pixie/.ssh/serverConfig.pub.
+The key fingerprint is:
+XXXXXX
+The key's randomart image is:
+XXXXXX
 ```
 
 ## The hosted web application
