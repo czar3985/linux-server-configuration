@@ -44,7 +44,7 @@ your server’s IP address in a browser.
 
 ### 1. Set-up the server
 
-**- Start a new Ubuntu server instance on [Amazon Lightsail](https://lightsail.aws.amazon.com/).**
+#### - Start a new Ubuntu server instance on [Amazon Lightsail](https://lightsail.aws.amazon.com/).
 
 In [Amazon Lightsail](https://lightsail.aws.amazon.com/), log-in using your 
 Amazon Web Service (AWS) account or create a new account. Follow the steps in creating a 
@@ -53,12 +53,12 @@ select **OS only** and **Ubuntu**. Select the First Month Free instance plan.
 Indicate a unique instance name. 
 The public IP address will be displayed when the instance is created.
 
-**- Set-up SSH access to the server.**
+#### - Set-up SSH access to the server.
 
 Click on the created instance. Click "Connect using SSH". A Lightsail terminal will open up.
 
 ### 2. Secure the server
-**- Update installed packages.**
+#### - Update installed packages.
 
 In the Lightsail terminal, update available package lists:
 ```
@@ -71,7 +71,7 @@ ubuntu@ip-172.26-0-180:~$ sudo apt-get upgrade
 Press Enter when asked if you want to keep the version currently installed
 for some packages.
 
-**- Change the SSH port from 22 to 2200.**
+#### - Change the SSH port from 22 to 2200.
 
 Still in the Lightsail terminal:
 ```
@@ -80,8 +80,8 @@ ubuntu@ip-172.26-0-180:~$ sudo nano /etc/ssh/sshd_config
 Locate the line that says: `# Port 22` and replace `22` with `2200`. 
 Save and exit by pressing Ctrl-O, Enter and Ctrl-X.
 
-**- Configure the Lightsail Uncomplicated Firewall (UFW) to only allow 
-incoming connections for SSH (port 2200), HTTP (port 80), and NTP (port 123).**
+#### - Configure the Lightsail Uncomplicated Firewall (UFW) to only allow 
+incoming connections for SSH (port 2200), HTTP (port 80), and NTP (port 123).
 
 Block all incoming connections first:
 ```
@@ -128,26 +128,25 @@ To                         Action      From
 ```
 
 ### 3. Give grader access
-**- Create a new user account named grader.**
+#### - Create a new user account named grader.
 
-**- Give grader the permission to sudo.**
+#### - Give grader the permission to sudo.
 
-**- Create an SSH key pair for grader using the ssh-keygen tool.**
+#### - Create an SSH key pair for grader using the ssh-keygen tool.
 
 ### 4. Prepare to deploy the project
-**- Configure the local timezone to UTC.**
+#### - Configure the local timezone to UTC.
 
-**- Install and configure Apache to serve a Python mod_wsgi application.**
+#### - Install and configure Apache to serve a Python mod_wsgi application.
 
-**- Install and configure PostgreSQL.**
+#### - Install and configure PostgreSQL.
 
-**- Install git**
+#### - Install git
 
 ### 5. Deploy the Item Catalog project
-**- Clone and set-up the Item Catalog project**
+#### - Clone and set-up the Item Catalog project
 
-**- Set it up in your server so that it functions correctly when visiting 
-your server’s IP address in a browser.**
+#### - Set it up in your server so that it functions correctly when visiting your server’s IP address in a browser
 
 
 ## Summary of Software Installed
