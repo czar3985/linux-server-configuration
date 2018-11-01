@@ -69,12 +69,10 @@ $ ssh ubuntu@54.252.131.90 -p 22 -i ~/.ssh/lightsailDefault.pem
 ### 2. Secure the server
 #### - Update installed packages.
 
-After logging into the Lightsail instance, update available package lists:
+After logging into the Lightsail instance, update available package lists and
+upgrade the installed packages:
 ```
 ubuntu@ip-172-26-10-47:~$ sudo apt-get update
-```
-and upgrade installed packages:
-```
 ubuntu@ip-172-26-10-47:~$ sudo apt-get upgrade
 ```
 Press Enter when asked if you want to keep the version currently installed
@@ -102,30 +100,21 @@ Restart the sshd service:
 ```
  ubuntu@ip-172-26-10-47::~$ sudo service ssh restart
 ```
-#### - Configure the Lightsail Uncomplicated Firewall (UFW) to only allow 
-incoming connections for SSH (port 2200), HTTP (port 80), and NTP (port 123).
+#### - Configure the Lightsail Uncomplicated Firewall (UFW)
+Only allow incoming connections for SSH (port 2200), HTTP (port 80), and NTP (port 123).
 
-Block all incoming connections first:
+Block all incoming connections and allow outgoing connections:
 ```
  ubuntu@ip-172-26-10-47::~$ sudo ufw default deny incoming
-```
-Set rule for outgoing connections:
-```
  ubuntu@ip-172-26-10-47::~$ sudo ufw default allow outgoing
 ```
-Allow incoming connections for SSH (port 2200):
+Allow incoming connections for SSH (port 2200), HTTP (port 80) and NTP (port 123):
 ```
  ubuntu@ip-172-26-10-47::~$ sudo ufw allow 2200/tcp
-```
-Allow incoming connections for HTTP (port 80):
-```
  ubuntu@ip-172-26-10-47::~$ sudo ufw allow 80/tcp
-```
-Allow incoming connections for HTTP (port 123):
-```
  ubuntu@ip-172-26-10-47::~$ sudo ufw allow 123/udp
 ```
-Enable the firewall:
+Enable the firewall.
 ```
  ubuntu@ip-172-26-10-47::~$ sudo ufw enable
 ```
@@ -149,11 +138,52 @@ To                         Action      From
 
 ### 3. Give grader access
 #### - Create a new user account named grader.
-
+```
+ubuntu@ip-172-26-10-47:~$ sudo adduser grader
+```
 #### - Give grader the permission to sudo.
-
+```
+ubuntu@ip-172-26-10-47:~$ sudo nano /etc/sudoers.d/grader
+```
+In the file, add the following lines:
+```
+# User rules for grader
+grader ALL=(ALL) NOPASSWD:ALL
+```
 #### - Create an SSH key pair for grader using the ssh-keygen tool.
+In local terminal:
+```
+$ ssh-keygen
+```
+Enter filename where key will be saved. Ex: `/c/Users/pixie/.ssh/itemCatalog`
 
+Open itemCatalog.pub and copy the public key:
+```
+$ cat ~/.ssh/itemCatalog.pub
+```
+In Lightsail terminal, change to user `grader`. Enter password indicated when user was added:
+```
+ubuntu@ip-172-26-10-47:~$ su grader
+```
+Go to the grader user's home. Create a `.ssh` directory. 
+Create an `authorized_keys` file inside the `.ssh` directory. 
+Open the file and paste the copied public key from `itemCatalog.pub`. 
+Ctrl-O, Enter and Ctrl-X to save
+```
+grader@ip-172-26-10-47:/home/ubuntu$ cd ~
+grader@ip-172-26-10-47:~$ mkdir .ssh
+grader@ip-172-26-10-47:~$ touch .ssh/authorized_keys
+grader@ip-172-26-10-47:~$ nano .ssh/authorized_keys
+```
+Change the permissions of the created directory and file:
+```
+grader@ip-172-26-10-47:~$ chmod 700 .ssh
+grader@ip-172-26-10-47:~$ chmod 644 .ssh/authorized_keys
+```
+The grader may now log-in using ssh key. Enter passphrase.
+```
+$ ssh -p 2200 grader@54.252.131.90 -i ~/.ssh/itemCatalog
+```
 ### 4. Prepare to deploy the project
 #### - Configure the local timezone to UTC.
 
