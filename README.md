@@ -10,7 +10,7 @@ This README walks the user through the steps of configuring and accessing the
 Linux web server using Amazon Lightsail. 
 
 ## Server Details
-**Public IP Address:** 13.211.163.74
+**Public IP Address:** 54.252.131.90
 
 **SSH Port:** 2200
 
@@ -49,7 +49,7 @@ your server’s IP address in a browser.
 In [Amazon Lightsail](https://lightsail.aws.amazon.com/), log-in using your 
 Amazon Web Service (AWS) account or create a new account. Follow the steps in creating a 
 Lightsail instance. For the instance image, select **Linux/Unix platform**. For Blueprint, 
-select **OS only** and **Ubuntu**. Select the First Month Free instance plan. 
+select **OS only** and **Ubuntu 16.x**. Select the First Month Free instance plan. 
 Indicate a unique instance name. 
 The public IP address will be displayed when the instance is created.
 
@@ -59,11 +59,11 @@ Click on the created instance. Scroll down to the Account Page link and click it
 Download the SSH key. 
 From a terminal in your local machine, copy the downloaded file to `~/.ssh`:
 ```
-$ mv ~/Downloads/LightsailDefaultPrivateKey-ap-southeast-2.pem ~/.ssh/lightsailDefaultPrivate.pem
+$ mv ~/Downloads/LightsailDefaultPrivateKey-ap-southeast-2.pem ~/.ssh/lightsailDefault.pem
 ```
 SSH into the Lightsail instance:
 ```
-$ ssh ubuntu@13.211.163.74 -p 22 -i ~/.ssh/lightsailDefaultPrivate.pem
+$ ssh ubuntu@54.252.131.90 -p 22 -i ~/.ssh/lightsailDefault.pem
 ```
 
 ### 2. Secure the server
@@ -71,11 +71,11 @@ $ ssh ubuntu@13.211.163.74 -p 22 -i ~/.ssh/lightsailDefaultPrivate.pem
 
 After logging into the Lightsail instance, update available package lists:
 ```
-ubuntu@ip-172-26-5-4:~$ sudo apt-get update
+ubuntu@ip-172-26-10-47:~$ sudo apt-get update
 ```
 and upgrade installed packages:
 ```
-ubuntu@ip-172-26-5-4:~$ sudo apt-get upgrade
+ubuntu@ip-172-26-10-47:~$ sudo apt-get upgrade
 ```
 Press Enter when asked if you want to keep the version currently installed
 for some packages.
@@ -93,45 +93,45 @@ Application: Custom, Protocol: UDP, Port range: 123
 
 In the terminal, while logged in to the Lightsail instance:
 ```
- ubuntu@ip-172-26-5-4::~$ sudo nano /etc/ssh/sshd_config
+ ubuntu@ip-172-26-10-47::~$ sudo nano /etc/ssh/sshd_config
 ```
-Locate the line that says: `#Port 22` and replace `22` with `2200`. 
+Locate the line that says: `Port 22` and replace `22` with `2200`. 
 Save and exit by pressing Ctrl-O, Enter and Ctrl-X.
 
 Restart the sshd service: 
 ```
- ubuntu@ip-172-26-5-4::~$ sudo service ssh restart
+ ubuntu@ip-172-26-10-47::~$ sudo service ssh restart
 ```
 #### - Configure the Lightsail Uncomplicated Firewall (UFW) to only allow 
 incoming connections for SSH (port 2200), HTTP (port 80), and NTP (port 123).
 
 Block all incoming connections first:
 ```
- ubuntu@ip-172-26-5-4::~$ sudo ufw default deny incoming
+ ubuntu@ip-172-26-10-47::~$ sudo ufw default deny incoming
 ```
 Set rule for outgoing connections:
 ```
- ubuntu@ip-172-26-5-4::~$ sudo ufw default allow outgoing
+ ubuntu@ip-172-26-10-47::~$ sudo ufw default allow outgoing
 ```
 Allow incoming connections for SSH (port 2200):
 ```
- ubuntu@ip-172-26-5-4::~$ sudo ufw allow 2200/tcp
+ ubuntu@ip-172-26-10-47::~$ sudo ufw allow 2200/tcp
 ```
 Allow incoming connections for HTTP (port 80):
 ```
- ubuntu@ip-172-26-5-4::~$ sudo ufw allow 80/tcp
+ ubuntu@ip-172-26-10-47::~$ sudo ufw allow 80/tcp
 ```
 Allow incoming connections for HTTP (port 123):
 ```
- ubuntu@ip-172-26-5-4::~$ sudo ufw allow 123/udp
+ ubuntu@ip-172-26-10-47::~$ sudo ufw allow 123/udp
 ```
 Enable the firewall:
 ```
- ubuntu@ip-172-26-5-4::~$ sudo ufw enable
+ ubuntu@ip-172-26-10-47::~$ sudo ufw enable
 ```
 Check all rules and that the firewall is active:
 ```
- ubuntu@ip-172-26-5-4::~$ sudo ufw status
+ ubuntu@ip-172-26-10-47::~$ sudo ufw status
 ```
 Expected Result:
 ```
