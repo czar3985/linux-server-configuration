@@ -186,13 +186,60 @@ $ ssh -p 2200 grader@54.252.131.90 -i ~/.ssh/itemCatalog
 ```
 ### 4. Prepare to deploy the project
 #### - Configure the local timezone to UTC.
-
+```
+grader@ip-172-26-10-47:~$ sudo dpkg-reconfigure tzdata
+```
+Select 'None of these' and 'UTC' from the options.
 #### - Install and configure Apache to serve a Python mod_wsgi application.
-
+Install apache. In the browser, visit http://54.252.131.90. It should load Apache's default 
+page. 
+```
+grader@ip-172-26-10-47:~$ sudo apt-get install apache2
+```
+Install the Python 3 version of the Apache WSGI module. Restart Apche to use the new module:
+```
+grader@ip-172-26-10-47:~$ sudo apt-get install libapache2-mod-wsgi-py3
+grader@ip-172-26-10-47:~$ sudo service apache2 restart
+```
 #### - Install and configure PostgreSQL.
+Install Postgres package and the additional utilities. 
+```
+grader@ip-172-26-10-47:~$ sudo apt-get install postgresql postgresql-contrib
+```
+Do not allow remote connections. Check the host based authentication file:
+```
+grader@ip-172-26-10-47:~$ sudo nano /etc/postgresql/9.5/main/pg_hba.conf
+```
+Confirm that the remote declarations (TYPE: host) apply to interfaces that specify the local machine. 
+This is the current default when installing PostgreSQL from the Ubuntu repositories.
+```
+local   all             postgres                                peer
 
+# TYPE  DATABASE        USER            ADDRESS                 METHOD
+
+# "local" is for Unix domain socket connections only
+local   all             all                                     peer
+host    all             all             127.0.0.1/32            md5
+host    all             all             ::1/128                 md5
+```
+Switch to the postgres user. Connect to the Postgres system:
+```
+grader@ip-172-26-10-47:~$ sudo su - postgres
+postgres@ip-172-26-10-47:~$ psql
+```
+Create a database and user named `catalog` that has limited permissions to your catalog application database:
+```
+postgres=# CREATE DATABASE catalog;
+postgres=# CREATE USER catalog;
+postgres=# ALTER ROLE catalog WITH PASSWORD 'udacity';
+postgres=# GRANT ALL PRIVILEGES ON DATABASE catalog TO catalog;
+postgres=# \q
+postgres@ip-172-26-10-47:~$ exit
+```
 #### - Install git
-
+```
+grader@ip-172-26-10-47:~$ sudo apt-get install git
+```
 ### 5. Deploy the Item Catalog project
 #### - Clone and set-up the Item Catalog project
 
@@ -203,9 +250,11 @@ $ ssh -p 2200 grader@54.252.131.90 -i ~/.ssh/itemCatalog
 
 
 ## Resources
-
 1. [Udacity](https://www.udacity.com/)'s course "Configuring Linux Web Servers"
-2. http://terokarvinen.com/2017/write-python-3-web-apps-with-apache2-mod_wsgi-install-ubuntu-16-04-xenial-every-tiny-part-tested-separately
-3. https://medium.com/coding-blocks/creating-user-database-and-adding-access-on-postgresql-8bfcd2f4a91e
-4. https://nz.godaddy.com/help/changing-the-ssh-port-for-your-linux-server-7306
-5. https://www.digitalocean.com/community/tutorials/how-to-set-up-a-firewall-with-ufw-on-ubuntu-16-04
+2. [Changing the SSH Port for Your Linux Server](https://nz.godaddy.com/help/changing-the-ssh-port-for-your-linux-server-7306)
+3. [How To Set Up a Firewall with UFW on Ubuntu 16.04](https://www.digitalocean.com/community/tutorials/how-to-set-up-a-firewall-with-ufw-on-ubuntu-16-04)
+4. [Write Python 3 Web Apps with Apache2 mod_wsgi](http://terokarvinen.com/2017/write-python-3-web-apps-with-apache2-mod_wsgi-install-ubuntu-16-04-xenial-every-tiny-part-tested-separately)
+5. [Creating user, database and adding access on PostgreSQL](https://medium.com/coding-blocks/creating-user-database-and-adding-access-on-postgresql-8bfcd2f4a91e)
+6. [How To Install and Use PostgreSQL on Ubuntu 16.04](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-ubuntu-16-04)
+7. [How To Secure PostgreSQL on an Ubuntu VPS](https://www.digitalocean.com/community/tutorials/how-to-secure-postgresql-on-an-ubuntu-vps)
+8. [How To Install Git on Ubuntu 16.04](https://www.digitalocean.com/community/tutorials/how-to-install-git-on-ubuntu-16-04#how-to-set-up-git)
