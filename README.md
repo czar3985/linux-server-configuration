@@ -14,7 +14,7 @@ Linux web server using Amazon Lightsail.
 
 **SSH Port:** 2200
 
-**URL to the hosted web application:**
+**URL to the hosted web application:** http://ec2-54-252-131-90.ap-southeast-2.compute.amazonaws.com/
 
 ## Overview of the Steps
 1. Set-up the server
@@ -135,7 +135,6 @@ To                         Action      From
 80/tcp (v6)                ALLOW       Anywhere (v6)
 123/udp (v6)               ALLOW       Anywhere (v6)
 ```
-
 ### 3. Give grader access
 #### - Create a new user account named grader.
 ```
@@ -241,13 +240,22 @@ postgres@ip-172-26-10-47:~$ exit
 grader@ip-172-26-10-47:~$ sudo apt-get install git
 ```
 ### 5. Deploy the Item Catalog project
+The application can be accessed from the URL found with the nslookup command.
+The URL and hostname is: `ec2-54-252-131-90.ap-southeast-2.compute.amazonaws.com`
+```
+grader@ip-172-26-10-47:~$ nslookup 54.252.131.90
+```
 #### - Clone and set-up the Item Catalog project
 
 #### - Set it up in your server so that it functions correctly when visiting your server’s IP address in a browser
 
 
 ## Summary of Software Installed
-
+- apache2
+- libapache2-mod-wsgi-py3
+- postgresql
+- postgresql-contrib
+- git
 
 ## Resources
 1. [Udacity](https://www.udacity.com/)'s course "Configuring Linux Web Servers"
@@ -258,3 +266,5 @@ grader@ip-172-26-10-47:~$ sudo apt-get install git
 6. [How To Install and Use PostgreSQL on Ubuntu 16.04](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-ubuntu-16-04)
 7. [How To Secure PostgreSQL on an Ubuntu VPS](https://www.digitalocean.com/community/tutorials/how-to-secure-postgresql-on-an-ubuntu-vps)
 8. [How To Install Git on Ubuntu 16.04](https://www.digitalocean.com/community/tutorials/how-to-install-git-on-ubuntu-16-04#how-to-set-up-git)
+9. [How To Deploy a Flask Application on an Ubuntu VPS](https://www.digitalocean.com/community/tutorials/how-to-deploy-a-flask-application-on-an-ubuntu-vps)
+10. [How To Find Hostname From IP Address](https://javarevisited.blogspot.com/2011/09/find-hostname-from-ip-address-to.html)
