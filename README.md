@@ -246,6 +246,29 @@ The URL and hostname is: `ec2-54-252-131-90.ap-southeast-2.compute.amazonaws.com
 grader@ip-172-26-10-47:~$ nslookup 54.252.131.90
 ```
 #### - Clone and set-up the Item Catalog project
+Prepare the item catalog project: 
+i. Change code from Python 2 to Python 3. 
+ii. Change database from SQLite to PostgreSQL. 
+iii. Check that it is working well in Udacity's vagrant setup.
+
+##### Create client secret for Google log-in
+
+Follow the steps below to create _client_secrets.json_
+
+1. In https://console.developers.google.com/apis/dashboard, sign in to your Google account
+2. Create Project. Indicate a name for the app
+3. Go to your app's page in Google APIs Console
+4. Choose Credentials
+5. Create an OAuth Client ID.
+6. Configure the consent screen, with email and app name
+7. Add authorized domain `amazonaws.com`. Follow the steps to verify ownership of the domain.
+8. Choose Web application list of application types
+8. Set the authorized JavaScript origins: 
+- http://ec2-54-252-131-90.ap-southeast-2.compute.amazonaws.com
+9. Authorized redirect URIs: 
+- http://ec2-54-252-131-90.ap-southeast-2.compute.amazonaws.com/login
+- http://ec2-54-252-131-90.ap-southeast-2.compute.amazonaws.com/gconnect
+10. Download the client secret JSON file and copy the contents to client_secrets.json in the same folder as the pokemon_types.py file
 
 #### - Set it up in your server so that it functions correctly when visiting your server’s IP address in a browser
 
