@@ -14,7 +14,10 @@ Linux web server using Amazon Lightsail.
 
 **SSH Port:** 2200
 
-**URL to the hosted web application:** http://ec2-54-252-131-90.ap-southeast-2.compute.amazonaws.com/
+**URLs to the hosted web application:** 
+- http://ec2-54-252-131-90.ap-southeast-2.compute.amazonaws.com/
+- http://54.252.131.90
+- http://54.252.131.90.xip.io
 
 ## Overview of the Steps
 1. Set-up the server
@@ -43,9 +46,7 @@ your server’s IP address in a browser.
 ## Detailed Configuration Steps
 
 ### 1. Set-up the server
-
 #### - Start a new Ubuntu server instance on [Amazon Lightsail](https://lightsail.aws.amazon.com/).
-
 In [Amazon Lightsail](https://lightsail.aws.amazon.com/), log-in using your 
 Amazon Web Service (AWS) account or create a new account. Follow the steps in creating a 
 Lightsail instance. For the instance image, select **Linux/Unix platform**. For Blueprint, 
@@ -55,20 +56,19 @@ The public IP address will be displayed when the instance is created.
 
 #### - Set-up SSH access to the server.
 
-Click on the created instance. Scroll down to the Account Page link and click it.
-Download the SSH key. 
+Click on the created instance. Scroll down to the **Account Page link** and click it.
+Download the **SSH key**. 
 From a terminal in your local machine, copy the downloaded file to `~/.ssh`:
 ```
 $ mv ~/Downloads/LightsailDefaultPrivateKey-ap-southeast-2.pem ~/.ssh/lightsailDefault.pem
 ```
-SSH into the Lightsail instance:
+**SSH** into the Lightsail instance:
 ```
 $ ssh ubuntu@54.252.131.90 -p 22 -i ~/.ssh/lightsailDefault.pem
 ```
 
 ### 2. Secure the server
 #### - Update installed packages.
-
 After logging into the Lightsail instance, update available package lists and
 upgrade the installed packages:
 ```
@@ -79,36 +79,38 @@ Press Enter when asked if you want to keep the version currently installed
 for some packages.
 
 #### - Configure the Lightsail firewall to allow access to port 2200.
-
-In the web console of the Lightsail instance, go to Networking - Firewall. 
+In the web console of the Lightsail instance, go to **Networking - Firewall**. 
 Add two more ports that accepts connections: 
 ```
 Application: Custom, Protocol: TCP, Port range: 2200
 Application: Custom, Protocol: UDP, Port range: 123
 ```
 
-#### - Change the SSH port from 22 to 2200.
-
+#### - Change the SSH port from 22 to 2200. Disable remote login for root.
 In the terminal, while logged in to the Lightsail instance:
 ```
  ubuntu@ip-172-26-10-47::~$ sudo nano /etc/ssh/sshd_config
 ```
 Locate the line that says: `Port 22` and replace `22` with `2200`. 
+Locate the line that says: `PermitRootLogin` and replace `prohibit-password` with `no`
 Save and exit by pressing Ctrl-O, Enter and Ctrl-X.
 
 Restart the sshd service: 
 ```
  ubuntu@ip-172-26-10-47::~$ sudo service ssh restart
 ```
+
 #### - Configure the Lightsail Uncomplicated Firewall (UFW)
-Only allow incoming connections for SSH (port 2200), HTTP (port 80), and NTP (port 123).
+Only allow incoming connections for SSH (port 2200), HTTP (port 80), 
+and NTP (port 123).
 
 Block all incoming connections and allow outgoing connections:
 ```
  ubuntu@ip-172-26-10-47::~$ sudo ufw default deny incoming
  ubuntu@ip-172-26-10-47::~$ sudo ufw default allow outgoing
 ```
-Allow incoming connections for SSH (port 2200), HTTP (port 80) and NTP (port 123):
+Allow incoming connections for SSH (port 2200), HTTP (port 80) 
+and NTP (port 123):
 ```
  ubuntu@ip-172-26-10-47::~$ sudo ufw allow 2200/tcp
  ubuntu@ip-172-26-10-47::~$ sudo ufw allow 80/tcp
@@ -135,11 +137,13 @@ To                         Action      From
 80/tcp (v6)                ALLOW       Anywhere (v6)
 123/udp (v6)               ALLOW       Anywhere (v6)
 ```
+
 ### 3. Give grader access
 #### - Create a new user account named grader.
 ```
 ubuntu@ip-172-26-10-47:~$ sudo adduser grader
 ```
+
 #### - Give grader the permission to sudo.
 ```
 ubuntu@ip-172-26-10-47:~$ sudo nano /etc/sudoers.d/grader
@@ -149,6 +153,7 @@ In the file, add the following lines:
 # User rules for grader
 grader ALL=(ALL) NOPASSWD:ALL
 ```
+
 #### - Create an SSH key pair for grader using the ssh-keygen tool.
 In local terminal:
 ```
@@ -183,12 +188,14 @@ The grader may now log-in using ssh key. Enter passphrase.
 ```
 $ ssh -p 2200 grader@54.252.131.90 -i ~/.ssh/itemCatalog
 ```
+
 ### 4. Prepare to deploy the project
 #### - Configure the local timezone to UTC.
 ```
 grader@ip-172-26-10-47:~$ sudo dpkg-reconfigure tzdata
 ```
 Select 'None of these' and 'UTC' from the options.
+
 #### - Install and configure Apache to serve a Python mod_wsgi application.
 Install apache. In the browser, visit http://54.252.131.90. It should load Apache's default 
 page. 
@@ -200,6 +207,7 @@ Install the Python 3 version of the Apache WSGI module. Restart Apche to use the
 grader@ip-172-26-10-47:~$ sudo apt-get install libapache2-mod-wsgi-py3
 grader@ip-172-26-10-47:~$ sudo service apache2 restart
 ```
+
 #### - Install and configure PostgreSQL.
 Install Postgres package and the additional utilities. 
 ```
@@ -235,21 +243,24 @@ postgres=# GRANT ALL PRIVILEGES ON DATABASE catalog TO catalog;
 postgres=# \q
 postgres@ip-172-26-10-47:~$ exit
 ```
+
 #### - Install git
 ```
 grader@ip-172-26-10-47:~$ sudo apt-get install git
 ```
+
 ### 5. Deploy the Item Catalog project
 The application can be accessed from the URL found with the nslookup command.
 The URL and hostname is: `ec2-54-252-131-90.ap-southeast-2.compute.amazonaws.com`
 ```
 grader@ip-172-26-10-47:~$ nslookup 54.252.131.90
 ```
-#### - Create client secret for Google log-in
 
+#### - Create client secret for Google log-in
 Follow the steps below to create _client_secrets.json_
 
-1. In https://console.developers.google.com/apis/dashboard, sign in to your Google account
+1. In https://console.developers.google.com/apis/dashboard, 
+sign in to your Google account
 2. Create Project. Indicate a name for the app
 3. Go to your app's page in Google APIs Console
 4. Choose Credentials
@@ -257,14 +268,17 @@ Follow the steps below to create _client_secrets.json_
 6. Configure the consent screen, with email and app name
 7. Add authorized domains: 
 - amazonaws.com
-- ec2-54-252-131-90.ap-southeast-2.compute.amazonaws.com
+- xip.io
 8. Follow the steps to verify ownership of the domain.
 9. Choose Web application list of application types
 10. Set the authorized JavaScript origins: 
 - http://ec2-54-252-131-90.ap-southeast-2.compute.amazonaws.com
+- http://54.252.131.90.xip.io
 11. Authorized redirect URIs: 
 - http://ec2-54-252-131-90.ap-southeast-2.compute.amazonaws.com/login
 - http://ec2-54-252-131-90.ap-southeast-2.compute.amazonaws.com/gconnect
+- http://54.252.131.90.xip.io/login
+- http://54.252.131.90.xip.io/gconnect
 12. Download the client secret JSON file
 
 #### - The necessary modifications to the Item Catalog project
@@ -276,10 +290,14 @@ iv.  Rename the downloaded JSON file to `client_secrets.json` and place
 in the same folder as the pokemon_types.py file
 v. In code, change these lines: `from database_setup import XXX` and `from view_model import XXX` to
 `from .database_setup import XXX` and `from .view_model import XXX`
-vi. In `client_secret.json` path in the code, prepend the current directory's path with 
+vi. In `client_secret.json` path in the code, prepend the current directory's path 
 `os.path.dirname(__file__)`
 
 #### - Set the code up in your server
+Create the directory where the code will go. Change permissions. Install a virtual environment to work on.
+Install the packages while inside the virtual environment. Setup and populate the database by running
+`database_setup.py` and `initial_entries.py`. Check that there are no errors when running the main
+script `pokemon_types.py`: 
 ```
 grader@ip-172-26-10-47:/var/www$ sudo mkdir ItemCatalog
 grader@ip-172-26-10-47:/var/www$ cd ItemCatalog/
@@ -299,9 +317,14 @@ grader@ip-172-26-10-47:/var/www/ItemCatalog/PokemonApp$ source venv/bin/activate
 (venv) grader@ip-172-26-10-47:/var/www/ItemCatalog/PokemonApp$ sudo pip3 install psycopg2-binary
 (venv) grader@ip-172-26-10-47:/var/www/ItemCatalog/PokemonApp$ sudo pip3 install httplib2
 (venv) grader@ip-172-26-10-47:/var/www/ItemCatalog/PokemonApp$ sudo pip3 install requests
+(venv) grader@ip-172-26-10-47:/var/www/ItemCatalog/PokemonApp$ sudo python3 database_setup.py
+(venv) grader@ip-172-26-10-47:/var/www/ItemCatalog/PokemonApp$ sudo python3 initial_entries.py
 (venv) grader@ip-172-26-10-47:/var/www/ItemCatalog/PokemonApp$ sudo python3 pokemon_types.py
+```
+Create the conf file below. Disable the default conf file and enable the newly-created one for the
+app:
+```
 (venv) grader@ip-172-26-10-47:/var/www/ItemCatalog/PokemonApp$ sudo nano /etc/apache2/sites-available/ItemCatalog.conf
-
 ---
 <VirtualHost *:80>
     ServerName 54.252.131.90
@@ -321,9 +344,14 @@ grader@ip-172-26-10-47:/var/www/ItemCatalog/PokemonApp$ source venv/bin/activate
     CustomLog ${APACHE_LOG_DIR}/access.log combined
 </VirtualHost>
 ---
-
+(venv) grader@ip-172-26-10-47:/var/www/ItemCatalog$ ls /etc/apache2/sites-enabled/
+(venv) grader@ip-172-26-10-47:/var/www/ItemCatalog/PokemonApp$ sudo a2dissite 000-default
 (venv) grader@ip-172-26-10-47:/var/www/ItemCatalog/PokemonApp$ sudo a2ensite ItemCatalog
 (venv) grader@ip-172-26-10-47:/var/www/ItemCatalog/PokemonApp$ cd /var/www/ItemCatalog
+```
+Create the wsgi file that runs the application as follows. Restart the apache service. Check the log if any
+errors are encountered:
+```
 (venv) grader@ip-172-26-10-47:/var/www/ItemCatalog$ sudo nano catalog.wsgi
 ---
 #!/usr/bin/env python
@@ -346,11 +374,9 @@ application.secret_key = 'super_secret_key'
 ```
 
 ## Summary of Software Installed
-- apache2
-- libapache2-mod-wsgi-py3
-- postgresql
-- postgresql-contrib
-- git
+`apache2`, `libapache2-mod-wsgi-py3`, `postgresql`, `postgresql-contrib`, `git`, 
+`python3`, `python3-pip`, `virtualenv`, `Flask`, `sqlalchemy`, `sqlalchemy_utils`, 
+`oauth2client`, `psycopg2`, `psycopg2-binary`, `httplib2`, `requests`
 
 ## Resources
 1. [Udacity](https://www.udacity.com/)'s course "Configuring Linux Web Servers"
@@ -365,3 +391,5 @@ application.secret_key = 'super_secret_key'
 10. [How To Find Hostname From IP Address](https://javarevisited.blogspot.com/2011/09/find-hostname-from-ip-address-to.html)
 11. [os.path — Common pathname manipulations](https://docs.python.org/3/library/os.path.html)
 12. [PostgreSQL DROP DATABASE](http://www.postgresqltutorial.com/postgresql-drop-database/)
+13. [Permission denied to generate login hint for target domain when hosted on AWS](https://stackoverflow.com/a/52294864)
+14. [How to Disable Remote Logon for Root on Ubuntu 16.04 LTS Servers](https://websiteforstudents.com/how-to-disable-remote-logon-for-root-on-ubuntu-16-04-lts-servers/)
