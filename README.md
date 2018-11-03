@@ -245,13 +245,7 @@ The URL and hostname is: `ec2-54-252-131-90.ap-southeast-2.compute.amazonaws.com
 ```
 grader@ip-172-26-10-47:~$ nslookup 54.252.131.90
 ```
-#### - Clone and set-up the Item Catalog project
-Prepare the item catalog project: 
-i. Change code from Python 2 to Python 3. 
-ii. Change database from SQLite to PostgreSQL. 
-iii. Check that it is working well in Udacity's vagrant setup.
-
-##### Create client secret for Google log-in
+#### - Create client secret for Google log-in
 
 Follow the steps below to create _client_secrets.json_
 
@@ -261,17 +255,95 @@ Follow the steps below to create _client_secrets.json_
 4. Choose Credentials
 5. Create an OAuth Client ID.
 6. Configure the consent screen, with email and app name
-7. Add authorized domain `amazonaws.com`. Follow the steps to verify ownership of the domain.
-8. Choose Web application list of application types
-8. Set the authorized JavaScript origins: 
+7. Add authorized domains: 
+- amazonaws.com
+- ec2-54-252-131-90.ap-southeast-2.compute.amazonaws.com
+8. Follow the steps to verify ownership of the domain.
+9. Choose Web application list of application types
+10. Set the authorized JavaScript origins: 
 - http://ec2-54-252-131-90.ap-southeast-2.compute.amazonaws.com
-9. Authorized redirect URIs: 
+11. Authorized redirect URIs: 
 - http://ec2-54-252-131-90.ap-southeast-2.compute.amazonaws.com/login
 - http://ec2-54-252-131-90.ap-southeast-2.compute.amazonaws.com/gconnect
-10. Download the client secret JSON file and copy the contents to client_secrets.json in the same folder as the pokemon_types.py file
+12. Download the client secret JSON file
 
-#### - Set it up in your server so that it functions correctly when visiting your server’s IP address in a browser
+#### - The necessary modifications to the Item Catalog project
+Prepare the item catalog project: 
+i. Change code from Python 2 to Python 3. 
+ii. Change database from SQLite to PostgreSQL. 
+iii. Check that it is working well in Udacity's vagrant setup.
+iv.  Rename the downloaded JSON file to `client_secrets.json` and place
+in the same folder as the pokemon_types.py file
+v. In code, change these lines: `from database_setup import XXX` and `from view_model import XXX` to
+`from .database_setup import XXX` and `from .view_model import XXX`
+vi. In `client_secret.json` path in the code, prepend the current directory's path with 
+`os.path.dirname(__file__)`
 
+#### - Set the code up in your server
+```
+grader@ip-172-26-10-47:/var/www$ sudo mkdir ItemCatalog
+grader@ip-172-26-10-47:/var/www$ cd ItemCatalog/
+grader@ip-172-26-10-47:/var/www/ItemCatalog$ sudo git clone https://github.com/czar3985/pokemon-types-v2.git PokemonApp
+grader@ip-172-26-10-47:/var/www/ItemCatalog$ cd ..
+grader@ip-172-26-10-47:/var/www$ sudo chown -R root:root ItemCatalog/
+grader@ip-172-26-10-47:/var/www/ItemCatalog/PokemonApp$ sudo apt-get install python3 python3-pip
+grader@ip-172-26-10-47:/var/www/ItemCatalog/PokemonApp$ sudo pip3 install --upgrade pip
+grader@ip-172-26-10-47:/var/www/ItemCatalog/PokemonApp$ sudo pip3 install virtualenv 
+grader@ip-172-26-10-47:/var/www/ItemCatalog/PokemonApp$ sudo virtualenv venv
+grader@ip-172-26-10-47:/var/www/ItemCatalog/PokemonApp$ source venv/bin/activate 
+(venv) grader@ip-172-26-10-47:/var/www/ItemCatalog/PokemonApp$ sudo pip3 install Flask 
+(venv) grader@ip-172-26-10-47:/var/www/ItemCatalog/PokemonApp$ sudo pip3 install sqlalchemy
+(venv) grader@ip-172-26-10-47:/var/www/ItemCatalog/PokemonApp$ sudo pip3 install sqlalchemy_utils
+(venv) grader@ip-172-26-10-47:/var/www/ItemCatalog/PokemonApp$ sudo pip3 install oauth2client 
+(venv) grader@ip-172-26-10-47:/var/www/ItemCatalog/PokemonApp$ sudo pip3 install psycopg2
+(venv) grader@ip-172-26-10-47:/var/www/ItemCatalog/PokemonApp$ sudo pip3 install psycopg2-binary
+(venv) grader@ip-172-26-10-47:/var/www/ItemCatalog/PokemonApp$ sudo pip3 install httplib2
+(venv) grader@ip-172-26-10-47:/var/www/ItemCatalog/PokemonApp$ sudo pip3 install requests
+(venv) grader@ip-172-26-10-47:/var/www/ItemCatalog/PokemonApp$ sudo python3 pokemon_types.py
+(venv) grader@ip-172-26-10-47:/var/www/ItemCatalog/PokemonApp$ sudo nano /etc/apache2/sites-available/ItemCatalog.conf
+
+---
+<VirtualHost *:80>
+    ServerName 54.252.131.90
+    ServerAdmin ubuntu@54.252.131.90
+    WSGIScriptAlias / /var/www/ItemCatalog/catalog.wsgi
+    <Directory /var/www/ItemCatalog/PokemonApp/>
+        Order allow,deny
+        Allow from all
+    </Directory>
+    Alias /static /var/www/ItemCatalog/PokemonApp/static
+    <Directory /var/www/ItemCatalog/PokemonApp/static/>
+        Order allow,deny
+        Allow from all
+    </Directory>
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    LogLevel warn
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+---
+
+(venv) grader@ip-172-26-10-47:/var/www/ItemCatalog/PokemonApp$ sudo a2ensite ItemCatalog
+(venv) grader@ip-172-26-10-47:/var/www/ItemCatalog/PokemonApp$ cd /var/www/ItemCatalog
+(venv) grader@ip-172-26-10-47:/var/www/ItemCatalog$ sudo nano catalog.wsgi
+---
+#!/usr/bin/env python
+import sys
+import logging
+
+logging.basicConfig(stream=sys.stderr)
+
+sys.path.append("/var/www/ItemCatalog/")
+sys.path.append("/usr/local/lib/python3.5/dist-packages")
+sys.path.append("/usr/lib/python3/dist-packages")
+
+from PokemonApp.pokemon_types import app as application
+
+application.secret_key = 'super_secret_key'
+---
+(venv) grader@ip-172-26-10-47:/var/www$ sudo chmod 755 -R ItemCatalog
+(venv) grader@ip-172-26-10-47:/var/www/ItemCatalog$ sudo service apache2 restart 
+(venv) grader@ip-172-26-10-47:/var/www/ItemCatalog$ sudo tail -100 /var/log/apache2/error.log
+```
 
 ## Summary of Software Installed
 - apache2
@@ -291,3 +363,5 @@ Follow the steps below to create _client_secrets.json_
 8. [How To Install Git on Ubuntu 16.04](https://www.digitalocean.com/community/tutorials/how-to-install-git-on-ubuntu-16-04#how-to-set-up-git)
 9. [How To Deploy a Flask Application on an Ubuntu VPS](https://www.digitalocean.com/community/tutorials/how-to-deploy-a-flask-application-on-an-ubuntu-vps)
 10. [How To Find Hostname From IP Address](https://javarevisited.blogspot.com/2011/09/find-hostname-from-ip-address-to.html)
+11. [os.path — Common pathname manipulations](https://docs.python.org/3/library/os.path.html)
+12. [PostgreSQL DROP DATABASE](http://www.postgresqltutorial.com/postgresql-drop-database/)
