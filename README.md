@@ -283,19 +283,20 @@ sign in to your Google account
 
 #### - The necessary modifications to the Item Catalog project
 Prepare the item catalog project: 
-i. Change code from Python 2 to Python 3. 
-ii. Change database from SQLite to PostgreSQL. 
-iii. Check that it is working well in Udacity's vagrant setup.
-iv.  Rename the downloaded JSON file to `client_secrets.json` and place
-in the same folder as the pokemon_types.py file
-v. In code, change these lines: `from database_setup import XXX` and `from view_model import XXX` to
+a. Change code from Python 2 to Python 3. 
+b. Change database from SQLite to PostgreSQL. 
+c. Check that it is working well in Udacity's vagrant setup.
+d. Rename the downloaded JSON file to `client_secrets.json` and place
+in the same folder as the `pokemon_types.py` file
+e. In code, change these lines: 
+`from database_setup import XXX` and `from view_model import XXX` to
 `from .database_setup import XXX` and `from .view_model import XXX`
-vi. In `client_secret.json` path in the code, prepend the current directory's path 
+f. In `client_secret.json` path in the code, prepend the current directory's path 
 `os.path.dirname(__file__)`
 
 #### - Set the code up in your server
 Create the directory where the code will go. Change permissions. Install a virtual environment to work on.
-Install the packages while inside the virtual environment. Setup and populate the database by running
+Install the packages while inside the virtual environment. Set-up and populate the database by running
 `database_setup.py` and `initial_entries.py`. Check that there are no errors when running the main
 script `pokemon_types.py`: 
 ```
